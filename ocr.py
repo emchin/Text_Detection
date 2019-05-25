@@ -29,19 +29,10 @@ config = {
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
-#Find binarized image
-image_name = "Image_2"
-
-#PROBLEM
-#find_image = db.child("photo/").orderbychild("id").equalto(image_name).limit_to_first(1)
-#coded_img = find_image.val()
-
-#Save the binarized image temporarily as an image on the computer
-#with open("/Users/emily/Desktop/downloaded.png", "wb") as decodeImage:
-#	decodeImage.write(coded_img.decode('base64'))
-
-#Load the image from the desktop
-imgFile = '/Users/emily/Desktop/test-matte.png'
+#Load img from firebase
+storage = firebase.storage()
+imgFile = '/Users/emily/Desktop/downloaded.png'
+storage.child("images/hello.jpg").download(imgFile)
 
 #Read the image. Adding "0" makes this image grayscale
 img = cv2.imread(imgFile,0)
@@ -59,7 +50,7 @@ thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
 #Let's make the grayscale image bigger!!
 #Note: this makes the text detection MUCH better.
 #Please do NOT delete this line!!
-gray = cv2.resize(img, None, fx=1, fy=1, interpolation=cv2.INTER_LANCZOS4)
+gray = cv2.resize(img, None, fx=1, fy=1, interpolation=cv2.INTER_CUBIC)
 
 #Add a little blur to the picture
 img = cv2.bilateralFilter(img,3,75,75)
@@ -94,13 +85,13 @@ time_now = time.time()
 #db.push({"time": time_now, "text": text})
 
 #Push to firebase
-#url = "https://python-photo.firebaseio.com"
-#fb = FirebaseApplication(url, None)
-#result = fb.patch(url+"/data/" + image_name, {text":text, "time":time.time()})
+url = "https://test-7b06d.firebaseio.com"
+fb = FirebaseApplication(url, None)
+result = fb.patch(url+"/data/" + "derived_from_hello1", {"text":text, "time":time.time()})
 
 #Yayy! We uploaded the time, text and image to the
 #firebase server!
-
 #Delete the file so that when the next person uploads a pic
 #we don't have a "same file name in same place" error
 os.remove(filename)
+os.remove("/Users/emily/Desktop/downloaded.png")
